@@ -1,19 +1,29 @@
-const _ = require('lodash');
 const stylelint = require('stylelint');
-
 const ruleName = 'plugin/stylelint-force-selector-name-prefix';
 
-const optionsSchema = {
-  appName: _.isString
-};
-
+const getMessage = (type, selector, expectedName) => (
+    `${type} "${selector}" is out of control, please add prefix ${expectedName}, like "${expectedName}-${selector}`
+);
 const messages = stylelint.utils.ruleMessages(ruleName, {
-  invalid: (selector, appName) => "Selector \""+ selector +"\" is out of control, please wrap within ." + appName,
-  invalidKeyFrames: (keyframesName, appName) => "Keyframes name \""+ keyframesName +"\" is out of control, please prefix with " + appName + "-",
-  invalidFontFace: (fontFamily, appName) => "Custom font-family \""+ fontFamily +"\" is out of control, please prefix with " + appName + "-"
+  invalid: (selector, expectedName) => getMessage('Selector', selector, expectedName),
+  invalidKeyFrames: (keyframesName, expectedName) => getMessage('Keyframes name', keyframesName, expectedName),
+  invalidFontFace: (fontFamily, expectedName) => getMessage('Custom font-family', fontFamily, expectedName),
 });
-const sendErrorMessage = (ruleName, result, rule, message) => {
-  stylelint.utils.report({ ruleName, result, node: rule, message });
+const ErrorMessage = (result) => {
+  return {
+    invalidClassName(node, selector, prefixSelector) {
+      this._sendError(node, messages.invalid(fontFamily, prefixSelector));
+    },
+    invalidKeyFrames(node, keyFramesName, prefixSelector) {
+      this._sendError(node, messages.invalidKeyFrames(fontFamily, prefixSelector));
+    },
+    invalidFontFace(node, fontFamily, prefixSelector) {
+      this._sendError(node, messages.invalidFontFace(fontFamily, prefixSelector));
+    },
+    _sendError(node, message) {
+      stylelint.utils.report({ ruleName, result, node, message });
+    }
+  };
 };
 
 const parser = {
@@ -23,9 +33,9 @@ const parser = {
     {afterPath: 'pages', separator: 'kebab-case'},
   ],
   getOptions(userOptions) {
-    return (userOptions instanceof Array && userOptions.length > 0)
-        ? userOptions
-        : this.defaultOptions;
+    if (userOptions instanceof Array && userOptions.length > 0) return userOptions;
+    if (userOptions && typeof userOptions === 'object') return [userOptions];
+    return this.defaultOptions;
   },
   getPrefix(rule, options) {
     return options.map(option => {
@@ -35,7 +45,7 @@ const parser = {
   },
   _getSeparator(userOptions = {}) {
     return {
-      'snake-case': '_',
+      'snake_case': '_',
       'kebab-case': '-',
     }[userOptions.separator] || userOptions.separator || '-';
   },
@@ -70,12 +80,14 @@ const parser = {
 
 const checking = {
   checkClassName(parentSelector, prefixSelector) {
+    if (!prefixSelector) return true;
     const hasClass = parentSelector.indexOf(`.${prefixSelector}`) === 0;
     const nextSymbol = parentSelector[prefixSelector.length + 1];
     const hasCorrectNextSymbol = !nextSymbol || nextSymbol.match(/[\s\:\-\_\(\),\{\}]/gim);
     return hasClass && hasCorrectNextSymbol;
   },
   checkOther(parentSelector, prefixSelector) {
+    if (!prefixSelector) return true;
     const hasPrefix = parentSelector.indexOf(prefixSelector) === 0;
     const nextSymbol = parentSelector[prefixSelector.length];
     const hasCorrectNextSymbol = !nextSymbol || nextSymbol.match(/[\s\:\-\_\(\),\{\}]/gim);
@@ -87,18 +99,13 @@ module.exports = stylelint.createPlugin(ruleName, function(options) {
   const userOptions = parser.getOptions(options);
 
   return function(root, result) {
-    if (!options) return;
-    const validOptions = stylelint.utils.validateOptions(result, ruleName, {
-      actual: options,
-      possible: optionsSchema,
-    });
-    if (!validOptions) return;
+    const errorMessage = ErrorMessage(result);
 
     root.walkAtRules('keyframes', rule => {
       const keyFramesName = rule.params;
       const prefixSelector = parser.getPrefix(rule, userOptions);
       if (checking.checkOther(keyFramesName, prefixSelector)) return;
-      sendErrorMessage(ruleName, result, rule, messages.invalidKeyFrames(keyFramesName, prefixSelector));
+      errorMessage.invalidKeyFrames(rule, keyFramesName, prefixSelector);
     });
 
     root.walkAtRules('font-face', rule => {
@@ -106,7 +113,7 @@ module.exports = stylelint.createPlugin(ruleName, function(options) {
       rule.walkDecls('font-family', (decl) => {
         const fontFamily = decl.value.replace(/["']/gim, '');
         if (checking.checkOther(fontFamily, prefixSelector)) return;
-        sendErrorMessage(ruleName, result, rule, messages.invalidFontFace(fontFamily, prefixSelector));
+        errorMessage.invalidKeyFrames(rule, fontFamily, prefixSelector);
       });
     });
 
@@ -116,7 +123,7 @@ module.exports = stylelint.createPlugin(ruleName, function(options) {
       if ((/^:.*/).test(topParentSelector))  return;
       const prefixSelector = parser.getPrefix(rule, userOptions);
       if (checking.checkClassName(topParentSelector, prefixSelector)) return;
-      sendErrorMessage(ruleName, result, rule, messages.invalid(rule.selector, prefixSelector));
+      errorMessage.invalidKeyFrames(rule, rule.selector, prefixSelector);
     });
   };
 });

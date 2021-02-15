@@ -1,7 +1,7 @@
 {
   "name": "stylelint-force-selector-name-prefix",
-  "version": "0.2.0",
-  "description": "A stylelint plugin that force it to have app name as prefix",
+  "version": "0.1.0",
+  "description": "A stylelint plugin that force it to have page name as prefix",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
@@ -29,13 +29,6 @@
   },
   "homepage": "https://github.com/bakhirev/stylelint-force-selector-name-prefix#readme",
   "dependencies": {
-    "lodash": ">=3.10.0",
-    "postcss": ">=5.0.19",
-    "postcss-bem-linter": "^3.0.0",
     "stylelint": ">=10.0.0"
-  },
-  "devDependencies": {
-    "eslint": "^1.10.3",
-    "stylelint-test-rule-tape": "^0.2.0"
   }
 }
