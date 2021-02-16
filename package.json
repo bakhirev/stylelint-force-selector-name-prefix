@@ -1,6 +1,6 @@
 {
   "name": "stylelint-force-selector-name-prefix",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A stylelint plugin that force it to have page name as prefix",
   "main": "index.js",
   "scripts": {
