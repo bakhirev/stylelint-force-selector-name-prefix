@@ -7,7 +7,7 @@ To avoid css naming conflicts between pages, suggest to separate css selectors b
 ## Installation
 
 ```
-npm install stylelint-force-selector-name-prefix
+npm install @bakhirev/stylelint-force-selector-name-prefix
 ```
 
 Be warned: this is only compatible with stylelint v3+.
