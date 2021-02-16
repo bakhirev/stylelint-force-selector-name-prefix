@@ -22,14 +22,14 @@ Like so:
 // .stylelintrc
 {
   "plugins": [
-    "stylelint-force-selector-name-prefix"
+    "@bakhirev/stylelint-force-selector-name-prefix"
   ],
   "rules": {
     // ...
-    "plugin/stylelint-force-selector-name-prefix": [
-      { "afterPath": "components", "separator": "_" },
-      { "afterPath": "pages", "separator": "-" },
-    ],
+    "plugin/stylelint-force-selector-name-prefix": {
+        "afterPath": "pages",
+        "separator": "kebab-case"
+    },
     // ...
   }
 }
@@ -56,24 +56,24 @@ For example, you project like this:
   
 ```
 
-Disallow missing prefix or namespace for selectors, keyframes name and custom font-family name.
+Bad CSS:
 
 ```css
-    .some-selector { ... }
-/** ↑
- * Selector "some-selector" is out of control, please wrap within .game-catalogue         plugin/stylelint-force-selector-name-prefix */
+.some-class-name {
+    display: block;
+}
+.some .child {
+    display: inline-block;
+}
+```
 
-    @keyframes spin {
-/** ↑
- * Keyframes name "spin" is out of control, please prefix with game-catalogue       plugin/stylelint-force-selector-name-prefix */
-        0% { ... }
-        100% { ... }
-    }
+Good CSS:
 
-    @font-face {
-        font-family: "my-font";
-/**                   ↑
- * Custom font-family "my-font" is out of control, please prefix with game-catalogue         plugin/stylelint-force-selector-name-prefix */
-        ...
-    }
+```css
+.game-catalogue-some-class-name {
+    display: block;
+}
+.game-catalogue-some .child {
+    display: inline-block;
+}
 ```
