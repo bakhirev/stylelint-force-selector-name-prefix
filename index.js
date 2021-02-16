@@ -12,10 +12,10 @@ const messages = stylelint.utils.ruleMessages(ruleName, {
 const ErrorMessage = (result) => {
   return {
     invalidClassName(node, selector, prefixSelector) {
-      this._sendError(node, messages.invalid(fontFamily, prefixSelector));
+      this._sendError(node, messages.invalid(selector, prefixSelector));
     },
     invalidKeyFrames(node, keyFramesName, prefixSelector) {
-      this._sendError(node, messages.invalidKeyFrames(fontFamily, prefixSelector));
+      this._sendError(node, messages.invalidKeyFrames(keyFramesName, prefixSelector));
     },
     invalidFontFace(node, fontFamily, prefixSelector) {
       this._sendError(node, messages.invalidFontFace(fontFamily, prefixSelector));

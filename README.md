@@ -1,21 +1,20 @@
 # stylelint-force-selector-name-prefix
 
-A stylelint plugin that force it to have app name as prefix.
+A stylelint plugin that force it to have page or component name as prefix.
 
-To avoid css naming conflicts between apps, suggest to separate css selectors by prefix. For each app, you can have a unique app name and this plugin will force you to prefix for each selector.
+To avoid css naming conflicts between pages, suggest to separate css selectors by prefix. For each page or component, you can have a unique prefix and this plugin will force you to prefix for each selector.
 
 ## Installation
 
 ```
-npm install stylelint-force-app-name-prefix
+npm install stylelint-force-selector-name-prefix
 ```
 
 Be warned: this is only compatible with stylelint v3+.
 
 ## Usage
 
-Add it to your stylelint config `plugins` array, then add `"plugin/stylelint-force-selector-name-prefix"` to your rules,
-specifying your app name as `appName` in the primary option.
+Add it to your stylelint config `plugins` array, then add `"@bakhirev/stylelint-force-selector-name-prefix"` to your rules.
 
 Like so:
 
@@ -27,7 +26,7 @@ Like so:
   ],
   "rules": {
     // ...
-    "plugin/stylelint-force-app-name-prefix": [
+    "plugin/stylelint-force-selector-name-prefix": [
       { "afterPath": "components", "separator": "_" },
       { "afterPath": "pages", "separator": "-" },
     ],
@@ -38,16 +37,35 @@ Like so:
 
 ## Rule
 
+For example, you project like this:
+
+```
+- src
+  |-- helpers
+  |-- interfaces
+  |-- styles
+  |-- components
+  |-- pages
+      |-- GameCatalogue
+          |-- components
+          |-- store
+          |-- styles
+          |-- api.ts
+          |-- index.scss    [x]
+          |-- index.tsx
+  
+```
+
 Disallow missing prefix or namespace for selectors, keyframes name and custom font-family name.
 
 ```css
     .some-selector { ... }
 /** ↑
- * Selector "some-selector" is out of control, please wrap within .your-app-name         plugin/stylelint-force-app-name-prefix */
+ * Selector "some-selector" is out of control, please wrap within .game-catalogue         plugin/stylelint-force-selector-name-prefix */
 
     @keyframes spin {
 /** ↑
- * Keyframes name "spin" is out of control, please prefix with your-app-name       plugin/stylelint-force-app-name-prefix */
+ * Keyframes name "spin" is out of control, please prefix with game-catalogue       plugin/stylelint-force-selector-name-prefix */
         0% { ... }
         100% { ... }
     }
@@ -55,11 +73,7 @@ Disallow missing prefix or namespace for selectors, keyframes name and custom fo
     @font-face {
         font-family: "my-font";
 /**                   ↑
- * Custom font-family "my-font" is out of control, please prefix with your-app-name         plugin/stylelint-force-app-name-prefix */
+ * Custom font-family "my-font" is out of control, please prefix with game-catalogue         plugin/stylelint-force-selector-name-prefix */
         ...
     }
 ```
-
-## Option
-
-`appName` is the name of your app. Should be a string of `a-zA-Z` or `-` or `_`.
